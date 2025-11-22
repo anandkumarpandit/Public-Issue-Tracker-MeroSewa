@@ -37,7 +37,7 @@ const AdminLogin = () => {
       }
     } catch (err) {
       console.error(err);
-      setError("Connection error. Please try again.");
+      setError(err.message || "Connection error. Please try again.");
     } finally {
       setLoading(false);
     }
