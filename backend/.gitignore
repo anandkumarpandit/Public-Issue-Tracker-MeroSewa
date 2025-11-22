@@ -12,6 +12,7 @@ yarn-error.log*
 .env.production.local
 *.env
 config.env
+config.env.example
 env.development
 
 # Production builds
