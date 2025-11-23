@@ -12,28 +12,39 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       // Allow requests with no origin (like mobile apps or curl requests)
+//       if (!origin) return callback(null, true);
+
+//       if (
+//         origin.match(/^http:\/\/localhost:\d+$/) ||
+//         origin.match(/^http:\/\/127\.0\.0\.1:\d+$/)
+//       ) {
+//         return callback(null, true);
+//       }
+
+//       // Allow the specific FRONTEND_URL if set
+//       if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+//         return callback(null, true);
+//       }
+
+//       console.log("Blocked by CORS:", origin);
+//       callback(new Error("Not allowed by CORS"));
+//     },
+//     credentials: true,
+//   })
+// );
+
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-
-      if (
-        origin.match(/^http:\/\/localhost:\d+$/) ||
-        origin.match(/^http:\/\/127\.0\.0\.1:\d+$/)
-      ) {
-        return callback(null, true);
-      }
-
-      // Allow the specific FRONTEND_URL if set
-      if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
-        return callback(null, true);
-      }
-
-      console.log("Blocked by CORS:", origin);
-      callback(new Error("Not allowed by CORS"));
-    },
+    origin: [
+      "https://merosewa-9s4o.onrender.com", // your frontend
+      "http://localhost:3000",              // dev
+    ],
     credentials: true,
+    methods: "GET,POST,PUT,DELETE,PATCH"
   })
 );
 
