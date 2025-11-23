@@ -8,7 +8,6 @@ require("dotenv").config({ path: path.join(__dirname, "config.env") });
 
 const app = express();
 
-//  MIDDLEWARE
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -19,8 +18,10 @@ app.use(
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
 
-      // Allow any localhost origin (3000, 3001, 5173, etc.)
-      if (origin.match(/^http:\/\/localhost:\d+$/) || origin.match(/^http:\/\/127\.0\.0\.1:\d+$/)) {
+      if (
+        origin.match(/^http:\/\/localhost:\d+$/) ||
+        origin.match(/^http:\/\/127\.0\.0\.1:\d+$/)
+      ) {
         return callback(null, true);
       }
 
@@ -30,13 +31,12 @@ app.use(
       }
 
       console.log("Blocked by CORS:", origin);
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
   })
 );
 
-// STATIC UPLOADS FOLDER
 const uploadsDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -47,8 +47,6 @@ app.use("/uploads", express.static(uploadsDir));
 // ROUTES IMPORT
 app.use("/api/complaints", require("./routes/complaints"));
 app.use("/api/auth", require("./routes/auth"));
-
-
 
 // DATABASE CONNECTION
 mongoose
@@ -61,4 +59,6 @@ mongoose
 
 // START SERVER
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`Server running at http://localhost:${PORT}`)
+);

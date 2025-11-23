@@ -7,12 +7,10 @@ const Header = () => {
   const location = useLocation();
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location]);
 
-  // Track admin authentication
   useEffect(() => {
     setIsAdmin(isAdminAuthenticated());
 
@@ -171,7 +169,9 @@ const Header = () => {
               {!isAdmin && (
                 <Link
                   to="/admin/login"
-                  className={location.pathname === "/admin/login" ? "active" : ""}
+                  className={
+                    location.pathname === "/admin/login" ? "active" : ""
+                  }
                   onClick={closeMenu}
                 >
                   🔐 Admin Login

@@ -243,18 +243,25 @@ const TrackComplaint = () => {
                     <div>
                       <span className="info-label">Attachments:</span>
                       <div style={{ marginTop: '0.5rem' }}>
-                        {complaint.attachments.map((attachment, index) => (
-                          <div key={index} className="attachment-item">
-                            <a
-                              href={`http://localhost:5000/uploads/complaints/${attachment}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="attachment-link"
-                            >
-                              📎 {attachment}
-                            </a>
-                          </div>
-                        ))}
+                        {complaint.attachments.map((attachment, index) => {
+                          const isCloudinary = attachment.startsWith("http");
+                          const fileUrl = isCloudinary
+                            ? attachment
+                            : `http://localhost:5000/uploads/complaints/${attachment}`;
+
+                          return (
+                            <div key={index} className="attachment-item">
+                              <a
+                                href={fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="attachment-link"
+                              >
+                                📎 {isCloudinary ? "View Attachment" : attachment}
+                              </a>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}

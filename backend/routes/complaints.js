@@ -5,14 +5,24 @@ const fs = require("fs");
 const path = require("path");
 const Complaint = require("../models/Complaint");
 
-// Upload directory
-const uploadDir = path.join(__dirname, "..", "uploads", "complaints");
-fs.mkdirSync(uploadDir, { recursive: true });
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
-// Multer storage config
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
+// Cloudinary Config
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Multer Storage for Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "complaints",
+    resource_type: "auto", // Allow other file types like PDF
+    // allowed_formats: ["jpg", "png", "jpeg", "pdf"], // Remove strict format check for now to test
+  },
 });
 
 const upload = multer({ storage });
@@ -49,7 +59,7 @@ router.post("/submit", upload.array("attachments", 5), async (req, res) => {
       title,
       description,
       incidentDate,
-      attachments: (req.files || []).map((f) => f.filename),
+      attachments: (req.files || []).map((f) => f.path), // Save Cloudinary URL
       complaintNumber: "CMP" + Math.floor(100000 + Math.random() * 900000),
       status: "Submitted",
     });

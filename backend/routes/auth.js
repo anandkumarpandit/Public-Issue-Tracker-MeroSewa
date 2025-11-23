@@ -6,14 +6,11 @@ const User = require("../models/User");
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey123";
 const ADMIN_REGISTRATION_SECRET = process.env.ADMIN_REGISTRATION_SECRET || "admin_secret_2024";
 
-// ----------------------------------------------------
-// ADMIN REGISTRATION
-// ----------------------------------------------------
+
 router.post("/register", async (req, res) => {
   try {
     const { username, email, password, registrationSecret } = req.body;
 
-    // Validate required fields
     if (!username || !email || !password || !registrationSecret) {
       return res.json({
         success: false,
@@ -21,7 +18,6 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // Verify registration secret
     if (registrationSecret !== ADMIN_REGISTRATION_SECRET) {
       return res.json({
         success: false,
@@ -29,7 +25,6 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // Validate password strength
     if (password.length < 8) {
       return res.json({
         success: false,
@@ -37,7 +32,6 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // Check if username already exists
     const existingUser = await User.findOne({ username: username.toLowerCase() });
     if (existingUser) {
       return res.json({
@@ -46,11 +40,10 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // Create new admin user
     const newAdmin = new User({
       username: username.toLowerCase(),
       email: email || undefined,
-      password: password, // Will be hashed by User model pre-save hook
+      password: password, 
       role: "admin",
       isActive: true,
     });
@@ -70,9 +63,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// ----------------------------------------------------
-// ADMIN LOGIN
-// ----------------------------------------------------
+
 router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -84,7 +75,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // Find user by username
+  
     const user = await User.findOne({ username: username.toLowerCase() });
 
     if (!user) {
@@ -94,7 +85,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // Check if user is an admin
+ 
     if (user.role !== "admin") {
       return res.json({
         success: false,
@@ -102,7 +93,6 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // Check if account is active
     if (!user.isActive) {
       return res.json({
         success: false,
@@ -110,7 +100,6 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // Verify password
     const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {
@@ -120,10 +109,8 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // Update last login
     await user.updateLastLogin();
 
-    // Create JWT token
     const token = jwt.sign(
       {
         id: user._id,
@@ -157,9 +144,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// ----------------------------------------------------
-// VERIFY TOKEN (Dashboard calls this automatically)
-// ----------------------------------------------------
+
 router.get("/me", (req, res) => {
   const authHeader = req.headers.authorization || "";
 

@@ -2,10 +2,7 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey123';
 
-/**
- * Middleware to verify JWT token
- * Extracts token from Authorization header and verifies it
- */
+
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers.authorization || '';
 
@@ -30,10 +27,7 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-/**
- * Middleware to check if user has admin role
- * Must be used after verifyToken middleware
- */
+
 const requireAdmin = (req, res, next) => {
     if (!req.user) {
         return res.status(401).json({
