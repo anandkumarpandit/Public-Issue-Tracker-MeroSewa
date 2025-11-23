@@ -1,15 +1,47 @@
-/* Home.css */
+/* ===================================
+   PREMIUM MODERN HOME PAGE STYLES
+   =================================== */
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
 
 /* How it Works Section */
 .how-it-works-section {
-    padding: 4rem 0;
-    background-color: #ffffff;
+    padding: 5rem 0;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    position: relative;
+}
+
+.how-it-works-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 3.5rem;
+    font-size: 2.75rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
 }
 
 .how-it-works-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2.5rem;
     padding: 0 1rem;
     max-width: 1200px;
     margin: 0 auto;
@@ -17,56 +49,75 @@
 
 .how-it-works-card {
     background: #ffffff;
-    border-radius: 12px;
-    padding: 2rem;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
     text-align: center;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid #edf2f7;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(102, 126, 234, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.how-it-works-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+}
+
+.how-it-works-card:hover::before {
+    transform: scaleX(1);
 }
 
 .how-it-works-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 50px rgba(102, 126, 234, 0.15);
+    border-color: rgba(102, 126, 234, 0.2);
 }
 
 .how-it-works-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
     display: block;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+    transition: transform 0.4s ease;
+}
+
+.how-it-works-card:hover .how-it-works-icon {
+    transform: scale(1.1) rotate(5deg);
 }
 
 .how-it-works-title {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     font-weight: 700;
-    color: #2d3748;
-    margin: 0 0 0.75rem 0;
+    color: #1a202c;
+    margin: 0 0 1rem 0;
+    letter-spacing: -0.3px;
 }
 
 .how-it-works-description {
     font-size: 1rem;
-    color: #4a5568;
-    line-height: 1.6;
+    color: #64748b;
+    line-height: 1.7;
     margin: 0;
 }
 
 /* Complaint Types Section */
 .complaint-types-section {
-    padding: 4rem 0;
-    background-color: #f8f9fa;
-}
-
-.section-title {
-    text-align: center;
-    margin-bottom: 3rem;
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #2d3748;
+    padding: 5rem 0;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    position: relative;
 }
 
 .complaint-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
     gap: 2rem;
     padding: 0 1rem;
     max-width: 1200px;
@@ -75,25 +126,50 @@
 
 .complaint-card {
     background: #ffffff;
-    border-radius: 12px;
-    padding: 2rem;
+    border-radius: 18px;
+    padding: 2.25rem;
     display: flex;
     align-items: flex-start;
-    gap: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid #edf2f7;
+    gap: 1.75rem;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #f1f5f9;
+    position: relative;
+    overflow: hidden;
+}
+
+.complaint-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    transform: scaleY(0);
+    transition: transform 0.4s ease;
+}
+
+.complaint-card:hover::after {
+    transform: scaleY(1);
 }
 
 .complaint-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateX(8px);
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.12);
+    border-color: rgba(102, 126, 234, 0.15);
 }
 
 .card-icon {
-    font-size: 2.5rem;
+    font-size: 3rem;
     line-height: 1;
     flex-shrink: 0;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.08));
+    transition: transform 0.4s ease;
+}
+
+.complaint-card:hover .card-icon {
+    transform: scale(1.15);
 }
 
 .card-content {
@@ -101,29 +177,132 @@
 }
 
 .card-title {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     font-weight: 700;
-    color: #2d3748;
-    margin: 0 0 0.5rem 0;
+    color: #1a202c;
+    margin: 0 0 0.75rem 0;
+    letter-spacing: -0.3px;
 }
 
 .card-description {
     font-size: 1rem;
-    color: #4a5568;
-    line-height: 1.6;
+    color: #64748b;
+    line-height: 1.7;
     margin: 0;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+/* Button Styles */
+.btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    font-size: 1.05rem;
+    letter-spacing: 0.3px;
+}
 
-    .how-it-works-grid,
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+}
+
+.btn-outline {
+    background: transparent;
+    border-color: white;
+    color: white;
+}
+
+.btn-outline:hover {
+    background: white;
+    color: #667eea;
+    transform: translateY(-3px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 2.25rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .how-it-works-section,
+    .complaint-types-section {
+        padding: 3.5rem 0;
+    }
+
+    .how-it-works-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
     .complaint-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
 
     .how-it-works-card,
     .complaint-card {
-        padding: 1.5rem;
+        padding: 2rem 1.75rem;
+    }
+
+    .how-it-works-icon {
+        font-size: 3rem;
+    }
+
+    .card-icon {
+        font-size: 2.5rem;
+    }
+
+    .container {
+        padding: 0 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-title {
+        font-size: 1.85rem;
+        margin-bottom: 2rem;
+    }
+
+    .how-it-works-card,
+    .complaint-card {
+        padding: 1.75rem 1.5rem;
+        border-radius: 16px;
+    }
+
+    .how-it-works-title,
+    .card-title {
+        font-size: 1.2rem;
+    }
+
+    .how-it-works-description,
+    .card-description {
+        font-size: 0.95rem;
+    }
+
+    .how-it-works-icon {
+        font-size: 2.75rem;
+    }
+
+    .card-icon {
+        font-size: 2.25rem;
+    }
+
+    .btn {
+        padding: 0.9rem 1.75rem;
+        font-size: 1rem;
+    }
+
+    .container {
+        padding: 0 1.25rem;
     }
 }

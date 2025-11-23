@@ -27,8 +27,15 @@
 
 /* Fade animation */
 @keyframes fadeInLogin {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Tab styling (Only Sign In Visible) */
@@ -48,7 +55,7 @@
 }
 
 /* When selected */
-.sign-in:checked + .tab {
+.sign-in:checked+.tab {
   color: #667eea;
   border-bottom-color: #667eea;
 }
@@ -139,23 +146,116 @@
   text-decoration: underline;
 }
 
-/* Mobile Responsive */
-@media (max-width: 480px) {
+/* Tablet Responsive */
+@media (max-width: 768px) {
   .login-html {
-    width: 92%;
-    padding: 1.5rem 1.2rem;
+    width: 90%;
+    padding: 2rem 1.8rem;
+  }
+
+  .tab {
+    font-size: 1.3rem;
+  }
+}
+
+/* Premium Mobile Design */
+@media (max-width: 480px) {
+  .login-wrap {
+    padding: 0.75rem;
+  }
+
+  .login-html {
+    width: 100%;
+    max-width: 100%;
+    padding: 2rem 1.5rem;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  }
+
+  .tab {
+    font-size: 1.3rem;
+    margin-right: 16px;
+    font-weight: 700;
+  }
+
+  .login-form {
+    margin-top: 2rem;
+  }
+
+  .group {
+    margin-bottom: 1.5rem;
+  }
+
+  .label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .input {
+    padding: 0.9rem 1.1rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: 2px solid #e1e5e9;
+    transition: all 0.3s ease;
+  }
+
+  .input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.12);
+  }
+
+  .check {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .button {
+    padding: 1rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+  }
+
+  .button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+  }
+
+  .hr {
+    margin: 30px 0;
+  }
+
+  .foot-lnk {
+    margin-top: 1.5rem;
+  }
+
+  .foot-lnk a {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+  .login-html {
+    padding: 1.75rem 1.25rem;
   }
 
   .tab {
     font-size: 1.2rem;
-    margin-right: 14px;
   }
 
   .input {
-    padding: 0.7rem 0.9rem;
+    padding: 0.85rem 1rem;
+    font-size: 0.95rem;
   }
 
   .button {
+    padding: 0.9rem;
     font-size: 1rem;
   }
 }
