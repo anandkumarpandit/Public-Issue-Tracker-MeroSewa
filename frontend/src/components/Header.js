@@ -136,7 +136,7 @@ const Header = () => {
                 className={location.pathname === "/submit" ? "active" : ""}
                 onClick={closeMenu}
               >
-                Submit Complaint
+                📝 Submit Complaint
               </Link>
 
               <Link

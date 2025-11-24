@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const ComplaintSchema = new mongoose.Schema(
   {
-    complaintNumber: { type: String, required: true, unique: true },
+    complaintNumber: { type: String, required: true, unique: true, index: true },
 
     // Personal info
     personName: { type: String, required: true },
@@ -10,12 +10,12 @@ const ComplaintSchema = new mongoose.Schema(
     email: { type: String, default: "" },
 
     // Address
-    wardNumber: { type: Number, required: true },
+    wardNumber: { type: Number, required: true, index: true },
     location: { type: String, required: true },
     address: { type: String, required: true },
 
     // Complaint details
-    complaintType: { type: String, required: true },
+    complaintType: { type: String, required: true, index: true },
     priority: {
       type: String,
       enum: ["Low", "Medium", "High", "Emergency"],
@@ -35,6 +35,7 @@ const ComplaintSchema = new mongoose.Schema(
     status: {
       type: String,
       default: "Submitted",
+      index: true,
     },
     assignedTo: { type: String, default: "" },
     assignedPhone: { type: String, default: "" },
@@ -46,5 +47,9 @@ const ComplaintSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Compound index for admin dashboard filtering and sorting
+ComplaintSchema.index({ status: 1, complaintType: 1, createdAt: -1 });
+ComplaintSchema.index({ wardNumber: 1, status: 1 });
 
 module.exports = mongoose.model("Complaint", ComplaintSchema);

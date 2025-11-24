@@ -22,6 +22,10 @@ const AdminSignup = () => {
 
     const handleSignup = async (e) => {
         e.preventDefault();
+
+        // Prevent rapid submissions (debouncing)
+        if (loading) return;
+
         setError("");
         setSuccess("");
         setLoading(true);
@@ -33,7 +37,12 @@ const AdminSignup = () => {
                 navigate("/admin/login");
             }, 2000);
         } catch (err) {
-            setError(err.message || "Registration failed");
+            // Improved error messages
+            if (err.message.includes("timeout")) {
+                setError("Registration is taking longer than expected. Please check your connection and try again.");
+            } else {
+                setError(err.message || "Registration failed");
+            }
         } finally {
             setLoading(false);
         }

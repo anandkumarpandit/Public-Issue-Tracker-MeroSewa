@@ -119,6 +119,9 @@ const SubmitComplaint = () => {
   }, [setValue]);
 
   const onSubmit = async (data) => {
+    // Prevent rapid submissions (debouncing)
+    if (isSubmitting) return;
+
     setIsSubmitting(true);
     try {
       let response;
@@ -156,7 +159,12 @@ const SubmitComplaint = () => {
       }
     } catch (error) {
       console.error('Error submitting complaint:', error);
-      alert('Failed to submit complaint. Please try again.');
+      // Improved error messages
+      if (error.message && error.message.includes('timeout')) {
+        alert('Submission is taking longer than expected. Please check your connection and try again.');
+      } else {
+        alert('Failed to submit complaint. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -306,7 +314,7 @@ const SubmitComplaint = () => {
                 type="email"
                 className="form-input"
                 placeholder="your.email@example.com"
-                {...register('email', { pattern: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/ })}
+                {...register('email', { pattern: /^\w+([-.]?\w+)*@\w+([-.]?\w+)*(\.\w{2,3})+$/ })}
               />
               {errors.email && <span className="error-message">⚠️ Invalid email format</span>}
             </div>

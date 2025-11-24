@@ -10,6 +10,10 @@ const TrackComplaint = () => {
 
   const handleSearch = async (e) => {
     e.preventDefault();
+
+    // Prevent rapid submissions (debouncing)
+    if (loading) return;
+
     if (!complaintNumber.trim()) {
       setError('Please enter a complaint number');
       return;
@@ -26,7 +30,12 @@ const TrackComplaint = () => {
       }
     } catch (error) {
       console.error('Error tracking complaint:', error);
-      setError(error.response?.data?.message || 'Complaint not found. Please check your complaint number.');
+      // Improved error messages
+      if (error.message && error.message.includes('timeout')) {
+        setError('Search is taking longer than expected. Please check your connection and try again.');
+      } else {
+        setError(error.response?.data?.message || 'Complaint not found. Please check your complaint number.');
+      }
     } finally {
       setLoading(false);
     }

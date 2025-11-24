@@ -1,4 +1,5 @@
 import axios from "axios";
+import axiosRetry from "axios-retry";
 
 // API Base URL - can be overridden with REACT_APP_API_URL environment variable
 // Default to backend dev port 5000 where the server runs in this project
@@ -9,6 +10,21 @@ const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
+  },
+  timeout: 15000, // 15 second timeout
+});
+
+// Configure automatic retry with exponential backoff
+axiosRetry(api, {
+  retries: 3, // Retry failed requests up to 3 times
+  retryDelay: axiosRetry.exponentialDelay, // Exponential backoff
+  retryCondition: (error) => {
+    // Retry on network errors or 5xx server errors
+    return axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+      (error.response?.status >= 500 && error.response?.status < 600);
+  },
+  onRetry: (retryCount, error, requestConfig) => {
+    console.log(`Retrying request (${retryCount}/3):`, requestConfig.url);
   },
 });
 
@@ -32,11 +48,30 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    // Handle timeout errors
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+      console.error('Request timeout:', error.config?.url);
+      error.message = 'Request timeout. Please check your connection and try again.';
+    }
+
+    // Handle authentication errors
     if (error.response?.status === 401) {
       localStorage.removeItem("authToken");
       localStorage.removeItem("user");
+      sessionStorage.removeItem("authToken");
+      sessionStorage.removeItem("user");
       window.location.href = "/admin/login";
     }
+
+    // Handle forbidden errors
+    if (error.response?.status === 403) {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("user");
+      sessionStorage.removeItem("authToken");
+      sessionStorage.removeItem("user");
+      window.location.href = "/admin/login";
+    }
+
     return Promise.reject(error);
   }
 );

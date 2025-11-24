@@ -4,11 +4,26 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
+const compression = require("compression");
 require("dotenv").config({ path: path.join(__dirname, "config.env") });
 
 const app = express();
 
+// Security and performance middleware
 app.use(helmet());
+app.use(compression()); // Compress all HTTP responses
+
+// Request timeout middleware (15 seconds)
+app.use((req, res, next) => {
+  req.setTimeout(15000, () => {
+    res.status(408).json({ success: false, message: "Request timeout" });
+  });
+  res.setTimeout(15000, () => {
+    res.status(408).json({ success: false, message: "Response timeout" });
+  });
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

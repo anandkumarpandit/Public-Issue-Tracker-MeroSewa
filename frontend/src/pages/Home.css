@@ -223,7 +223,8 @@
 
 .btn-outline:hover {
     background: white;
-    color: #667eea;
+    color: #667eea !important;
+    /* Force purple text on white background */
     transform: translateY(-3px);
 }
 

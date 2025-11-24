@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       lowercase: true,
       sparse: true,
+      index: true,
     },
     role: {
       type: String,
@@ -40,11 +41,11 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Hash password before saving
+// Hash password before saving (optimized with 8 rounds for better performance)
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   try {
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(8);
     this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (err) {

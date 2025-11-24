@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./AdminLogin.css";
 import apiClient from "../services/apiClient";
@@ -13,8 +13,12 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSignIn = async (e) => {
+  const handleSignIn = useCallback(async (e) => {
     e.preventDefault();
+
+    // Prevent rapid submissions (debouncing)
+    if (loading) return;
+
     setError("");
     setLoading(true);
     try {
@@ -37,11 +41,18 @@ const AdminLogin = () => {
       }
     } catch (err) {
       console.error(err);
-      setError(err.message || "Connection error. Please try again.");
+      // Improved error messages
+      if (err.message.includes("timeout")) {
+        setError("Login is taking longer than expected. Please check your connection and try again.");
+      } else if (err.message.includes("Session expired")) {
+        setError("Session expired. Please login again.");
+      } else {
+        setError(err.message || "Connection error. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading, signinUsername, signinPassword, keepSigned, navigate]);
 
   return (
     <div className="login-wrap">

@@ -11,13 +11,14 @@ const QRCodeScanner = ({ onScan, onClose }) => {
     if (videoRef.current) {
       startScanner();
     }
-    
+
     return () => {
       if (qrScannerRef.current) {
         qrScannerRef.current.stop();
         qrScannerRef.current.destroy();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const startScanner = async () => {
@@ -34,9 +35,9 @@ const QRCodeScanner = ({ onScan, onClose }) => {
           highlightCodeOutline: true,
         }
       );
-      
+
       qrScannerRef.current = qrScanner;
-      
+
       await qrScanner.start();
       setHasPermission(true);
     } catch (error) {
@@ -75,7 +76,7 @@ const QRCodeScanner = ({ onScan, onClose }) => {
         textAlign: 'center'
       }}>
         <h3 style={{ marginBottom: '1rem' }}>Scan QR Code</h3>
-        
+
         <div style={{
           width: '100%',
           maxWidth: '300px',
@@ -102,17 +103,17 @@ const QRCodeScanner = ({ onScan, onClose }) => {
             </div>
           )}
         </div>
-        
+
         {error && (
           <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>
             {error}
           </div>
         )}
-        
+
         <p style={{ marginBottom: '1rem', color: '#666' }}>
           Point your camera at a QR code to scan it
         </p>
-        
+
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
           <button
             className="btn btn-secondary"

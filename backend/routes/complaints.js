@@ -241,4 +241,21 @@ router.patch("/:id/status", async (req, res) => {
   }
 });
 
+
+// -------------------------------------------------
+// ADMIN DELETE COMPLAINT
+// -------------------------------------------------
+router.delete("/:id", async (req, res) => {
+  try {
+    const complaint = await Complaint.findById(req.params.id);
+    if (!complaint) return res.status(404).json({ success: false, message: "Complaint not found" });
+
+    await Complaint.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: "Complaint deleted successfully" });
+  } catch (err) {
+    console.error("❌ Delete Error:", err);
+    res.status(500).json({ success: false, message: "Failed to delete complaint" });
+  }
+});
+
 module.exports = router;

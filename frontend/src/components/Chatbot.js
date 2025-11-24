@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { complaintAPI } from "../services/api";
 import "./Chatbot.css";
 
@@ -31,7 +31,7 @@ const Chatbot = () => {
         "👋 Hello! I'm your MeroSewa Complaint Assistant. How can I help you today?\n\n• File a complaint\n• Check complaint status\n• Get help"
       );
     }
-  }, [isOpen]);
+  }, [isOpen, messages.length]);
 
   useEffect(() => {
     if (!showPreview && !isOpen) {
@@ -54,7 +54,7 @@ const Chatbot = () => {
     });
   };
 
-  const handleDragMove = (e) => {
+  const handleDragMove = useCallback((e) => {
     if (!isDragging) return;
     e.preventDefault();
     const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
@@ -63,11 +63,11 @@ const Chatbot = () => {
       x: clientX - dragStart.x,
       y: clientY - dragStart.y,
     });
-  };
+  }, [isDragging, dragStart]);
 
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     setIsDragging(false);
-  };
+  }, []);
 
   useEffect(() => {
     if (isDragging) {
@@ -82,7 +82,7 @@ const Chatbot = () => {
         window.removeEventListener("touchend", handleDragEnd);
       };
     }
-  }, [isDragging, dragStart]);
+  }, [isDragging, dragStart, handleDragMove, handleDragEnd]);
 
   const addBotMessage = (text) => {
     setMessages((prev) => [
@@ -389,17 +389,12 @@ const Chatbot = () => {
   };
 
   const showComplaintSummary = (data) => {
-    const summary = `📋 Complaint Summary:\n\nName: ${
-      data.personName
-    }\nPhone: ${data.phone}\nEmail: ${data.email || "Not provided"}\nWard: ${
-      data.wardNumber
-    }\nLocation: ${data.location}\nAddress: ${data.address}\nType: ${
-      data.complaintType
-    }\nPriority: ${data.priority}\nTitle: ${data.title}\nDescription: ${
-      data.description
-    }\nIncident Date: ${
-      data.incidentDate
-    }\n\nIs this correct? Reply 'yes' to submit or 'no' to cancel.`;
+    const summary = `📋 Complaint Summary:\n\nName: ${data.personName
+      }\nPhone: ${data.phone}\nEmail: ${data.email || "Not provided"}\nWard: ${data.wardNumber
+      }\nLocation: ${data.location}\nAddress: ${data.address}\nType: ${data.complaintType
+      }\nPriority: ${data.priority}\nTitle: ${data.title}\nDescription: ${data.description
+      }\nIncident Date: ${data.incidentDate
+      }\n\nIs this correct? Reply 'yes' to submit or 'no' to cancel.`;
     addBotMessage(summary);
     setConversationState("confirm_complaint");
   };
@@ -454,15 +449,12 @@ const Chatbot = () => {
 
       if (response.data.success) {
         const complaint = response.data.data;
-        const statusMsg = `📊 Complaint Status:\n\nID: ${
-          complaint.complaintNumber
-        }\nType: ${complaint.complaintType}\nStatus: ${
-          complaint.status
-        }\nPriority: ${complaint.priority}\nSubmitted: ${new Date(
-          complaint.createdAt
-        ).toLocaleDateString()}\n\n${
-          complaint.resolutionNotes ? "Notes: " + complaint.resolutionNotes : ""
-        }`;
+        const statusMsg = `📊 Complaint Status:\n\nID: ${complaint.complaintNumber
+          }\nType: ${complaint.complaintType}\nStatus: ${complaint.status
+          }\nPriority: ${complaint.priority}\nSubmitted: ${new Date(
+            complaint.createdAt
+          ).toLocaleDateString()}\n\n${complaint.resolutionNotes ? "Notes: " + complaint.resolutionNotes : ""
+          }`;
         addBotMessage(statusMsg);
       } else {
         addBotMessage(

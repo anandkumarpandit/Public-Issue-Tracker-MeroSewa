@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import apiClient from "../services/apiClient";
 import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
-  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem("authToken"));
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user"));
+    } catch (e) {
+      return null;
+    }
+  });
   const [complaints, setComplaints] = useState([]);
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -40,6 +46,7 @@ const AdminDashboard = () => {
   // --------------------------
   useEffect(() => {
     checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAuth = async () => {
@@ -67,16 +74,16 @@ const AdminDashboard = () => {
   // --------------------------
   // LOGOUT
   // --------------------------
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
     setIsAuthenticated(false);
-  };
+  }, []);
 
   // --------------------------
   // LOAD COMPLAINTS
   // --------------------------
-  const loadComplaints = async (page = 1) => {
+  const loadComplaints = useCallback(async (page = 1) => {
     setLoading(true);
     try {
       const params = { page, ...filters };
@@ -100,12 +107,12 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   // --------------------------
   // LOAD STATISTICS
   // --------------------------
-  const loadStatistics = async () => {
+  const loadStatistics = useCallback(async () => {
     try {
       const response = await apiClient.getComplaintStats();
 
@@ -120,20 +127,20 @@ const AdminDashboard = () => {
         byPriority: [],
       });
     }
-  };
+  }, []);
 
   // --------------------------
   // CHANGE PAGE
   // --------------------------
-  const changePage = (newPage) => {
+  const changePage = useCallback((newPage) => {
     if (newPage < 1) return;
     loadComplaints(newPage);
-  };
+  }, [loadComplaints]);
 
   // --------------------------
   // UPDATE STATUS
   // --------------------------
-  const handleStatusUpdate = async () => {
+  const handleStatusUpdate = useCallback(async () => {
     if (!selectedComplaint) return;
 
     setLoading(true);
@@ -158,7 +165,29 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedComplaint, updateForm, loadComplaints, loadStatistics, pagination]);
+
+  // --------------------------
+  // DELETE COMPLAINT
+  // --------------------------
+  const handleDelete = useCallback(async (id) => {
+    if (window.confirm("Are you sure you want to delete this complaint? This action cannot be undone.")) {
+      try {
+        const res = await apiClient.deleteComplaint(id);
+        if (res.success) {
+          setSuccessMessage("✅ Complaint deleted successfully");
+          loadComplaints(pagination.current);
+          loadStatistics();
+          setTimeout(() => setSuccessMessage(""), 3000);
+        } else {
+          alert("Failed to delete complaint");
+        }
+      } catch (err) {
+        console.error("Delete error", err);
+        alert(err.message || "Error deleting complaint");
+      }
+    }
+  }, [loadComplaints, loadStatistics, pagination]);
 
   // --------------------------
   // REGISTER OFFICER
@@ -168,7 +197,7 @@ const AdminDashboard = () => {
   // --------------------------
   // BADGES
   // --------------------------
-  const getStatusBadge = (status) => {
+  const getStatusBadge = useCallback((status) => {
     const statusClasses = {
       Submitted: "badge-submitted",
       "Under Review": "badge-under-review",
@@ -178,9 +207,9 @@ const AdminDashboard = () => {
       Rejected: "badge-rejected",
     };
     return `badge ${statusClasses[status] || "badge-submitted"}`;
-  };
+  }, []);
 
-  const formatDate = (date) => {
+  const formatDate = useCallback((date) => {
     if (!date) return "N/A";
     const d = new Date(date);
     if (isNaN(d.getTime())) return "N/A";
@@ -189,17 +218,17 @@ const AdminDashboard = () => {
       month: "short",
       day: "numeric",
     });
-  };
+  }, []);
 
   // --------------------------
   // AUTH LOADING
   // --------------------------
+  // --------------------------
+  // AUTH LOADING
+  // --------------------------
+  // Optimistic rendering - no loading screen needed
   if (isAuthenticated === null) {
-    return (
-      <div style={{ padding: "4rem", textAlign: "center" }}>
-        Checking authentication...
-      </div>
-    );
+    return null;
   }
 
   // --------------------------
@@ -336,7 +365,11 @@ const AdminDashboard = () => {
         </div>
 
         <div className="filter-actions">
-          <button className="btn-primary" onClick={() => loadComplaints(1)}>
+          <button
+            className="btn-primary"
+            onClick={() => loadComplaints(1)}
+            disabled={loading}
+          >
             Apply Filters
           </button>
         </div>
@@ -361,6 +394,7 @@ const AdminDashboard = () => {
                   <th>Name</th>
                   <th>Phone</th>
                   <th>Title</th>
+                  <th>Description</th>
                   <th>Address</th>
                   <th>Type</th>
                   <th>Status</th>
@@ -380,14 +414,12 @@ const AdminDashboard = () => {
                 ) : (
                   complaints.map((c) => (
                     <tr key={c._id}>
-                      <td style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>
-                        {c.complaintNumber}
-                      </td>
-
-                      <td style={{ fontWeight: 500 }}>{c.personName}</td>
-                      <td style={{ fontFamily: "monospace" }}>{c.phone}</td>
-                      <td style={{ fontWeight: 500 }}>{c.title}</td>
-                      <td style={{ fontSize: "0.9rem", maxWidth: "200px" }}>
+                      <td data-label="Complaint ID" style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>{c.complaintNumber}</td>
+                      <td data-label="Name" style={{ fontWeight: 500 }}>{c.personName}</td>
+                      <td data-label="Phone" style={{ fontFamily: "monospace" }}>{c.phone}</td>
+                      <td data-label="Title" style={{ fontWeight: 500 }}>{c.title}</td>
+                      <td data-label="Description" style={{ fontSize: "0.9rem", color: "#4a5568" }}>{c.description}</td>
+                      <td data-label="Address" style={{ fontSize: "0.9rem", maxWidth: "200px" }}>
                         {c.address}
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.address)}`}
@@ -399,31 +431,39 @@ const AdminDashboard = () => {
                           📍 View Map
                         </a>
                       </td>
-                      <td>{c.complaintType}</td>
-                      <td>
+                      <td data-label="Type">{c.complaintType}</td>
+                      <td data-label="Status">
                         <span className={getStatusBadge(c.status)}>
                           {c.status}
                         </span>
                       </td>
-                      <td>Ward {c.wardNumber}</td>
-                      <td>{formatDate(c.incidentDate)}</td>
-                      <td>
-                        <button
-                          className="btn-primary btn-sm"
-                          onClick={() => {
-                            setSelectedComplaint(c);
-                            setUpdateForm({
-                              status: c.status,
-                              assignedTo: c.assignedTo || "",
-                              assignedPhone: c.assignedPhone || "",
-                              assignedEmail: c.assignedEmail || "",
-                              resolutionNotes: c.resolutionNotes || "",
-                              actionDate: c.actionDate || "",
-                            });
-                          }}
-                        >
-                          Update
-                        </button>
+                      <td data-label="Ward">Ward {c.wardNumber}</td>
+                      <td data-label="Date">{formatDate(c.incidentDate)}</td>
+                      <td data-label="Actions">
+                        <div className="action-buttons">
+                          <button
+                            className="btn-primary btn-sm"
+                            onClick={() => {
+                              setSelectedComplaint(c);
+                              setUpdateForm({
+                                status: c.status,
+                                assignedTo: c.assignedTo || "",
+                                assignedPhone: c.assignedPhone || "",
+                                assignedEmail: c.assignedEmail || "",
+                                resolutionNotes: c.resolutionNotes || "",
+                                actionDate: c.actionDate || "",
+                              });
+                            }}
+                          >
+                            Update
+                          </button>
+                          <button
+                            className="btn-danger btn-sm"
+                            onClick={() => handleDelete(c._id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -436,7 +476,7 @@ const AdminDashboard = () => {
             <button
               className="btn-page"
               onClick={() => changePage(pagination.current - 1)}
-              disabled={pagination.current === 1}
+              disabled={pagination.current === 1 || loading}
             >
               Previous
             </button>
@@ -446,7 +486,7 @@ const AdminDashboard = () => {
             <button
               className="btn-page"
               onClick={() => changePage(pagination.current + 1)}
-              disabled={pagination.totalPages && pagination.current >= pagination.totalPages}
+              disabled={(pagination.totalPages && pagination.current >= pagination.totalPages) || loading}
             >
               Next
             </button>

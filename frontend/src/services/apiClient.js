@@ -3,8 +3,8 @@
  * Handles authenticated API requests with JWT tokens
  */
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_URL || "http://127.0.0.1:5000/api";
+const API_BASE_URL = "http://localhost:5000/api";
+// const API_BASE_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:5000/api";
 
 /**
  * Get the authentication token from localStorage
@@ -40,12 +40,26 @@ export const isAdminAuthenticated = () => {
   return token && user && user.role === "admin";
 };
 
+// Request deduplication map to prevent duplicate submissions
+const pendingRequests = new Map();
+
 /**
- * Make an authenticated API request
+ * Make an authenticated API request with timeout and retry logic
  */
-export const apiRequest = async (endpoint, options = {}) => {
+export const apiRequest = async (endpoint, options = {}, retryCount = 0) => {
   const token = getToken();
   const url = `${API_BASE_URL}${endpoint}`;
+  const maxRetries = 2;
+  const timeout = 15000; // 15 seconds
+
+  // Request deduplication key
+  const requestKey = `${options.method || 'GET'}_${endpoint}`;
+
+  // Check if this request is already pending (prevent double submissions)
+  if (pendingRequests.has(requestKey)) {
+    console.log('Duplicate request prevented:', requestKey);
+    return pendingRequests.get(requestKey);
+  }
 
   const headers = {
     "Content-Type": "application/json",
@@ -56,38 +70,79 @@ export const apiRequest = async (endpoint, options = {}) => {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
+  // Create abort controller for timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-    // Handle unauthorized (token expired or invalid)
-    if (response.status === 401) {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("user");
-      // You could dispatch a logout action here
-      window.location.href = "/admin/login";
+  const requestPromise = (async () => {
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      // Handle unauthorized (token expired or invalid)
+      if (response.status === 401) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+        sessionStorage.removeItem("authToken");
+        sessionStorage.removeItem("user");
+        window.location.href = "/admin/login";
+        throw new Error("Session expired. Please login again.");
+      }
+
+      // Handle forbidden (not admin)
+      if (response.status === 403) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+        sessionStorage.removeItem("authToken");
+        sessionStorage.removeItem("user");
+        window.location.href = "/admin/login";
+        throw new Error("Access denied. Admin privileges required.");
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "API request failed");
+      }
+
+      return data;
+    } catch (err) {
+      clearTimeout(timeoutId);
+
+      // Handle timeout
+      if (err.name === 'AbortError') {
+        if (retryCount < maxRetries) {
+          console.log(`Request timeout, retrying... (${retryCount + 1}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+          return apiRequest(endpoint, options, retryCount + 1);
+        }
+        throw new Error("Request timeout. Please check your connection and try again.");
+      }
+
+      // Handle network errors with retry
+      if (err.message.includes('fetch') && retryCount < maxRetries) {
+        console.log(`Network error, retrying... (${retryCount + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+        return apiRequest(endpoint, options, retryCount + 1);
+      }
+
+      console.error("API request error:", err);
+      throw err;
+    } finally {
+      // Remove from pending requests after completion
+      pendingRequests.delete(requestKey);
     }
+  })();
 
-    // Handle forbidden (not admin)
-    if (response.status === 403) {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("user");
-      window.location.href = "/admin/login";
-    }
+  // Store pending request
+  pendingRequests.set(requestKey, requestPromise);
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "API request failed");
-    }
-
-    return data;
-  } catch (err) {
-    console.error("API request error:", err);
-    throw err;
-  }
+  return requestPromise;
 };
 
 /**
@@ -174,6 +229,15 @@ export const updateComplaintStatus = async (complaintId, statusData) => {
 };
 
 /**
+ * Delete a complaint (admin only)
+ */
+export const deleteComplaint = async (complaintId) => {
+  return apiRequest(`/complaints/${complaintId}`, {
+    method: "DELETE",
+  });
+};
+
+/**
  * Get single complaint for tracking
  */
 export const trackComplaint = async (complaintNumber) => {
@@ -245,6 +309,7 @@ const apiClient = {
   getComplaints,
   getComplaintStats,
   updateComplaintStatus,
+  deleteComplaint,
   trackComplaint,
   submitComplaint,
   registerAdmin,
