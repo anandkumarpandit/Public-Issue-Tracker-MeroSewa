@@ -254,9 +254,13 @@ const TrackComplaint = () => {
                       <div style={{ marginTop: '0.5rem' }}>
                         {complaint.attachments.map((attachment, index) => {
                           const isCloudinary = attachment.startsWith("http");
+                          // Get base URL from env or default to localhost, then strip /api if present
+                          const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+                          const baseUrl = apiUrl.replace("/api", "");
+
                           const fileUrl = isCloudinary
                             ? attachment
-                            : `http://localhost:5000/uploads/complaints/${attachment}`;
+                            : `${baseUrl}/uploads/complaints/${attachment}`;
 
                           return (
                             <div key={index} className="attachment-item">
