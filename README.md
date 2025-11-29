@@ -26,7 +26,7 @@ A comprehensive web-based complaint management system for local government bodie
 - 
 ## Screenshots
 ![App Screenshot](https://img.sanishtech.com/u/27994cee00a7ef32ab2405c4c3c91597.png)
-- ![App Screenshot](https://img.sanishtech.com/u/69e900605d4c99408b184a02786620ac.png)
+![App Screenshot](https://img.sanishtech.com/u/b78d2e65205a5146447ef81cd276cd40.png)
 - ![App Screenshot](https://img.sanishtech.com/u/cca02ed1303b35184afca9a5fc1110d2.png)
 - ![App Screenshot](https://img.sanishtech.com/u/4ef02a8e6ae3f6a148d7cc13e7206195.png)
 - ![App Screenshot](https://img.sanishtech.com/u/ec4fd5e5ae03cce813e5d1ba614fe85f.png)
