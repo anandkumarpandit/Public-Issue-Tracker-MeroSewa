@@ -23,6 +23,9 @@ A comprehensive web-based complaint management system for local government bodie
 - **QRCode.react** - QR code generation
 - **QR Scanner** - QR code scanning
 - **Tailwind CSS** - Utility-first CSS framework
+- 
+## Screenshots
+- ![App Screenshot](https://img.sanishtech.com/u/69e900605d4c99408b184a02786620ac.png)
 
 
 ## 🚀 Getting Started
